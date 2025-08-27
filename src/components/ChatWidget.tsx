@@ -120,15 +120,9 @@ export default function ChatWidget() {
         
         {/* Icon */}
         <div className="relative z-10">
-          {isOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 transition-transform duration-300 group-hover:rotate-90">
-              <path fillRule="evenodd" d="M16.24 7.76a.75.75 0 0 1 0 1.06L13.06 12l3.18 3.18a.75.75 0 1 1-1.06 1.06L12 13.06l-3.18 3.18a.75.75 0 0 1-1.06-1.06L10.94 12 7.76 8.82a.75.75 0 0 1 1.06-1.06L12 10.94l3.18-3.18a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 transition-transform duration-300 group-hover:scale-110">
-              <path d="M4.5 5.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-.75.75H7.06a.75.75 0 0 0-.53.22l-1.5 1.5a.75.75 0 0 1-1.28-.53V5.25Z" />
-            </svg>
-          )}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 transition-transform duration-300 group-hover:scale-110">
+            <path d="M4.5 5.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-.75.75H7.06a.75.75 0 0 0-.53.22l-1.5 1.5a.75.75 0 0 1-1.28-.53V5.25Z" />
+          </svg>
         </div>
 
         {/* Indicator de notificare */}
@@ -141,13 +135,12 @@ export default function ChatWidget() {
 
       {/* Fereastră chat cu design modern */}
       {isOpen && (
-        <div className="mt-4 w-[95vw] max-w-md h-[75vh] bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+        <div className="mt-4 w-[95vw] max-w-md h-[50vh] bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300">
           {/* Header cu gradient */}
           <div className="px-6 py-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse shadow-lg" />
               <h2 className="font-bold text-white text-lg">{title}</h2>
-              <div className="text-white/80 text-sm">✨ AI Powered</div>
             </div>
             <button
               onClick={() => { resetSession(); setIsOpen(false) }}
@@ -161,7 +154,14 @@ export default function ChatWidget() {
           </div>
 
           {/* Mesaje cu design îmbunătățit */}
-          <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+          <div 
+            ref={containerRef} 
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-transparent hover:scrollbar-thumb-purple-400"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#c4b5fd transparent'
+            }}
+          >
             {messages.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
