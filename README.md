@@ -203,5 +203,4 @@ Acest proiect este licențiat sub [MIT License](LICENSE).
 
 Pentru suport tehnic:
 - Creează un issue pe GitHub
-- Contactează-mă la [your-email@domain.com]
-- Documentația completă: [docs-link]
+- Contactează-mă la beniamidumitriu@gmail.com
