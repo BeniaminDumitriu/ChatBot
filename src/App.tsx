@@ -1,4 +1,4 @@
-import { ChatWidget } from './components/ChatWidget'
+import ChatWidget from './components/ChatWidget'
 
 export default function App() {
   return (
