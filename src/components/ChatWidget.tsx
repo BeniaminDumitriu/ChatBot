@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 
+interface ChatWidgetProps {
+  apiBase?: string
+  siteId?: string
+  theme?: 'light' | 'dark'
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  size?: 'small' | 'medium' | 'large'
+  title?: string
+  primaryColor?: string
+  secondaryColor?: string
+}
+
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -7,7 +18,16 @@ interface ChatMessage {
   createdAt: number
 }
 
-export default function ChatWidget() {
+export default function ChatWidget({
+  apiBase = '',
+  siteId = 'default',
+  theme = 'light',
+  position = 'bottom-right',
+  size = 'medium',
+  title = 'AI Assistant',
+  primaryColor = 'from-purple-600 via-blue-600 to-indigo-600',
+  secondaryColor = 'from-purple-600 to-blue-600'
+}: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -15,7 +35,37 @@ export default function ChatWidget() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const sessionId = useMemo(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, [])
-  const siteId = useMemo(() => 'demo', [])
+
+  // Poziționare dinamică
+  const positionClasses = {
+    'bottom-right': 'fixed bottom-6 right-6',
+    'bottom-left': 'fixed bottom-6 left-6',
+    'top-right': 'fixed top-6 right-6',
+    'top-left': 'fixed top-6 left-6'
+  }
+
+  // Dimensiuni
+  const sizeClasses = {
+    small: 'w-12 h-12',
+    medium: 'w-16 h-16',
+    large: 'w-20 h-20'
+  }
+
+  // Teme
+  const themeClasses = {
+    light: {
+      bg: 'bg-white/95',
+      text: 'text-gray-800',
+      border: 'border-gray-200',
+      input: 'bg-white border-gray-300'
+    },
+    dark: {
+      bg: 'bg-gray-900/95',
+      text: 'text-white',
+      border: 'border-gray-700',
+      input: 'bg-gray-800 border-gray-600'
+    }
+  }
 
   useEffect(() => {
     if (containerRef.current) {
@@ -27,8 +77,7 @@ export default function ChatWidget() {
 
   const resetSession = async () => {
     try {
-      const apiBase = (globalThis as any)?.ChatBotConfig?.apiBase || (import.meta as any)?.env?.VITE_API_BASE || ''
-      const endpoint = `${apiBase ? String(apiBase).replace(/\/$/, '') : ''}/api/session/reset`
+      const endpoint = `${apiBase}/api/session/reset`
       await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,11 +103,7 @@ export default function ChatWidget() {
 
     try {
       setIsSending(true)
-      const apiBase =
-        (globalThis as any)?.ChatBotConfig?.apiBase ||
-        (import.meta as any)?.env?.VITE_API_BASE ||
-        ''
-      const endpoint = `${apiBase ? String(apiBase).replace(/\/$/, '') : ''}/api/chat`
+      const endpoint = `${apiBase}/api/chat`
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,27 +144,27 @@ export default function ChatWidget() {
         createdAt: Date.now(),
       }
       setMessages((prev) => [...prev, aiMessage])
-      // opțional: console.error(err)
     } finally {
       setIsSending(false)
     }
   }
 
-  const title = useMemo(() => 'AI Assistant', [])
-
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={positionClasses[position]}>
       {/* Buton plutitor cu gradient și animații */}
       <button
         onClick={() => setIsOpen((v) => !v)}
         aria-label={isOpen ? 'Închide chat' : 'Deschide chat'}
-        className="group relative rounded-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white shadow-2xl hover:shadow-purple-500/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2 w-16 h-16 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-3 transform"
+        style={{
+          display: isOpen ? 'none' : 'block'
+        }}
+        className={`group relative rounded-full bg-gradient-to-r ${primaryColor} text-white shadow-2xl hover:shadow-purple-500/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/50 focus-visible:ring-offset-2 ${sizeClasses[size]} flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-3 transform`}
       >
         {/* Efect de glow */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${primaryColor} blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-300`} />
         
         {/* Icon */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex justify-center items-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 transition-transform duration-300 group-hover:scale-110">
             <path d="M4.5 5.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-.75.75H7.06a.75.75 0 0 0-.53.22l-1.5 1.5a.75.75 0 0 1-1.28-.53V5.25Z" />
           </svg>
@@ -135,9 +180,9 @@ export default function ChatWidget() {
 
       {/* Fereastră chat cu design modern */}
       {isOpen && (
-        <div className="mt-4 w-[95vw] max-w-md h-[50vh] bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+        <div className={`mt-4 w-[95vw] max-w-md h-[50vh] ${themeClasses[theme].bg} backdrop-blur-xl border ${themeClasses[theme].border} rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300`}>
           {/* Header cu gradient */}
-          <div className="px-6 py-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-t-2xl flex items-center justify-between">
+          <div className={`px-6 py-4 bg-gradient-to-r ${primaryColor} rounded-t-2xl flex items-center justify-between`}>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse shadow-lg" />
               <h2 className="font-bold text-white text-lg">{title}</h2>
@@ -156,7 +201,7 @@ export default function ChatWidget() {
           {/* Mesaje cu design îmbunătățit */}
           <div 
             ref={containerRef} 
-            className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-transparent hover:scrollbar-thumb-purple-400"
+            className={`flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-transparent hover:scrollbar-thumb-purple-400 ${themeClasses[theme].text}`}
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor: '#c4b5fd transparent'
@@ -179,8 +224,8 @@ export default function ChatWidget() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap break-words shadow-lg ${
                     m.role === 'user'
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-br-md'
-                      : 'bg-white text-gray-800 border border-gray-100 rounded-bl-md shadow-sm'
+                      ? `bg-gradient-to-r ${secondaryColor} text-white rounded-br-md`
+                      : `${themeClasses[theme].bg} ${themeClasses[theme].text} border ${themeClasses[theme].border} rounded-bl-md shadow-sm`
                   }`}
                 >
                   {m.content}
@@ -191,7 +236,7 @@ export default function ChatWidget() {
             {/* Indicator de typing */}
             {isSending && (
               <div className="flex justify-start animate-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className={`${themeClasses[theme].bg} border ${themeClasses[theme].border} rounded-2xl rounded-bl-md px-4 py-3 shadow-sm`}>
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -208,7 +253,7 @@ export default function ChatWidget() {
               e.preventDefault()
               handleSend()
             }}
-            className="p-4 border-t border-gray-100 bg-white/80 backdrop-blur-sm"
+            className={`p-4 border-t ${themeClasses[theme].border} ${themeClasses[theme].bg} backdrop-blur-sm`}
           >
             <div className="flex items-center gap-3">
               <div className="flex-1 relative">
@@ -217,7 +262,7 @@ export default function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Scrie un mesaj..."
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-50 transition-all duration-200 placeholder:text-gray-400"
+                  className={`w-full rounded-xl border ${themeClasses[theme].border} px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-50 transition-all duration-200 placeholder:text-gray-400 ${themeClasses[theme].input} ${themeClasses[theme].text}`}
                   disabled={isSending}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -228,7 +273,7 @@ export default function ChatWidget() {
               </div>
               <button
                 type="submit"
-                className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 text-sm font-medium hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                className={`rounded-xl bg-gradient-to-r ${secondaryColor} text-white px-6 py-3 text-sm font-medium hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95`}
                 disabled={!input.trim() || isSending}
               >
                 {isSending ? (

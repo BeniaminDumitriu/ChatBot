@@ -10,7 +10,16 @@ export default function App() {
         </p>
       </div>
 
-      <ChatWidget />
+      <ChatWidget 
+        apiBase="http://localhost:8787"
+        siteId="demo"
+        theme="light"
+        position="bottom-right"
+        size="medium"
+        title="AI Assistant"
+        primaryColor="from-purple-600 via-blue-600 to-indigo-600"
+        secondaryColor="from-purple-600 to-blue-600"
+      />
     </div>
   )
 }
